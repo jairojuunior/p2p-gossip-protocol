@@ -11,6 +11,8 @@ import static java.nio.file.Files.walk;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -19,32 +21,37 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- *
- * @author guest-tdld1a
- */
 public class FileSystemReader{
     private final Stream<Path> walk;
-    
+    private DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
     public FileSystemReader(String fileSystem) throws IOException{
         this.walk = Files.walk(Paths.get(fileSystem));
         System.out.println(findFiles(this.walk));
     }
     
     private ArrayList<ArrayList<String>> findFiles(Stream<Path> walk){
+        ArrayList<ArrayList<String>> result = null;
         
         //Get files
         List<String> files = walk.filter(Files::isRegularFile)
                 .map(x -> x.toString()).collect(Collectors.toList());
         //Get files metadata
-        List<String> mod_date = files.stream().map(file -> 
-                Files.readAttributes(Paths.get(file), BasicFileAttributes.class).lastModifiedTime()).collect(Collectors.toList());
+        ArrayList<String> line = null;
+        files.forEach((file)-> {
+            BasicFileAttributes attr = null;
+            try {
+                attr = Files.readAttributes(Paths.get(file), BasicFileAttributes.class);
+            } catch (IOException ex) {
+                Logger.getLogger(FileSystemReader.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            line.add(file);
+            line.add(df.format(attr.lastModifiedTime().toMillis()));
+            line.add(Long.toString(attr.size()));
+            result.add(line);
+        });
         
-        /*
-        List<String> attrs = files.forEach((file) -> 
-                Files.readAttributes(Paths.get(file), BasicFileAttributes.class));
-        */
         return result;
-    }           
+    }
+}
     
  //Files.readAttributes(Paths.get(file), BasicFileAttributes.class);
