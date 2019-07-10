@@ -24,7 +24,7 @@ public class PeerDAO {
     /*Object containing the files of other Peers*/
     public HashMapDAO networkFileTable = new HashMapDAO();
     
-    public PeerDAO getInstance(){
+    public static PeerDAO getInstance(){
         if(INSTANCE == null){
             synchronized (PeerDAO.class){
                 if(INSTANCE ==  null){
