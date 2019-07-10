@@ -24,12 +24,13 @@ import java.util.stream.Stream;
 public class FileSystemReader{
     private final Stream<Path> walk;
     private DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    
     public FileSystemReader(String fileSystem) throws IOException{
         this.walk = Files.walk(Paths.get(fileSystem));
-        System.out.println(findFiles(this.walk));
+        System.out.println(updateMetadata(this.walk));
     }
     
-    private ArrayList<ArrayList<String>> findFiles(Stream<Path> walk){
+    private ArrayList<ArrayList<String>> updateMetadata(Stream<Path> walk){
         ArrayList<ArrayList<String>> result = null;
         
         //Get files
@@ -53,5 +54,3 @@ public class FileSystemReader{
         return result;
     }
 }
-    
- //Files.readAttributes(Paths.get(file), BasicFileAttributes.class);
