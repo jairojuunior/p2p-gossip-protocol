@@ -11,7 +11,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import org.json.JSONObject;
 import java.util.logging.Level;
@@ -61,19 +63,19 @@ public class Gossiper extends Thread{
     public void run(){
         while(true){
             try {
-                while(this.TABLE.size()==0){
+                while(this.TABLE.size()==0){ //sleeps until there is something to send
                     Thread.sleep(this.refreshTime);
                 }
+                Thread.sleep(this.refreshTime); //always wait the refresh time
             } catch (InterruptedException ex) {
                 Logger.getLogger(Gossiper.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             ArrayList destination = choosePeer();
-            ArrayList tableToSend = chooseTableToSend();
-            JSONObject tableJSON = new JSONObject(tableToSend);
-            String tableString = tableJSON.toString();
-            System.out.println(tableString);
-
+            FileTable tableToSend = chooseTableToSend();
+            String tableString = serializeData(tableToSend.getIP(), 
+                    tableToSend.getPort(), tableToSend.getName(), tableToSend.getFiles(), tableToSend.getUpdateDate()); 
+            
             byte[] sendData = new byte[1024];
             sendData = tableString.getBytes();
 
@@ -82,6 +84,10 @@ public class Gossiper extends Thread{
                 int destinationPort = Integer.parseInt((String) destination.get(1));
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, destinationIP, destinationPort);
                 this.socket.send(sendPacket);
+                
+                System.out.println("Sent the table below to "+destination.get(2));
+                System.out.println(tableString);
+                System.out.println("------------END OF TABLE------------");
             } catch (UnknownHostException ex) {
                 Logger.getLogger(Gossiper.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -97,11 +103,24 @@ public class Gossiper extends Thread{
         return (ArrayList) this.LIST_OF_PEERS.get(selected_peer);
     }
     
-    private ArrayList chooseTableToSend(){
+    private FileTable chooseTableToSend(){
         Random rand = new Random();
         int number_of_tables = this.TABLE.size();
         int selected_table = rand.nextInt(number_of_tables);
-        return (ArrayList) this.LIST_OF_PEERS.get(selected_table);
+        String keySelectedTable = this.TABLE.getAllKeys().get(selected_table);
+        return (FileTable) this.TABLE.get(keySelectedTable);
+    }
+    
+    private String serializeData(String IP, String port, String peerName, ArrayList listOfFiles, Date lastUpdateTimestamp) {
+        JSONObject json = new JSONObject();
+        
+        json.put("ip", IP);
+        json.put("port", port);
+        json.put("peer", peerName);
+        json.put("list of files", listOfFiles);
+        json.put("last update timestamp", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(lastUpdateTimestamp));
+        
+        return json.toString();
     }
     
     
