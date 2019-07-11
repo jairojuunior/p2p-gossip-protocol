@@ -104,5 +104,16 @@ public class Gossiper extends Thread{
         return (ArrayList) this.LIST_OF_PEERS.get(selected_table);
     }
     
+    private String serializeData(String IP, String port, String peerName, ArrayList listOfFiles, Date lastUpdateTimestamp) {
+        JSONObject json = new JSONObject();
+        
+        json.put("ip", IP);
+        json.put("port", port);
+        json.put("peer", peerName);
+        json.put("list of files", listOfFiles);
+        json.put("last update timestamp", new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(lastUpdateTimestamp));
+        
+        return json.toString();
+    }
     
 }
