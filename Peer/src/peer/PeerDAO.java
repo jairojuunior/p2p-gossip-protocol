@@ -6,6 +6,7 @@
 package peer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import java.util.Map;
 public class PeerDAO { 
     /*PeerDAO is implemented as a singleton*/
     public static PeerDAO INSTANCE;
+    public static ArrayList<ArrayList<String>> LIST_OF_PEERS;
+    
     
     /*Object containing the files of this Peer*/
     public HashMapDAO myFileTable = new HashMapDAO();
@@ -29,6 +32,7 @@ public class PeerDAO {
             synchronized (PeerDAO.class){
                 if(INSTANCE ==  null){
                     INSTANCE = new PeerDAO();
+                    LIST_OF_PEERS = new ArrayList();
                 }
             }
 
@@ -68,7 +72,12 @@ class HashMapDAO{
     public void delete(String key){
         HashMap.remove(key);
     }
-    
+    public ArrayList<String> getAllKeys(){
+        return new ArrayList(Arrays.asList(HashMap.keySet().toArray()));
+    }
+    public int size(){
+        return HashMap.size();
+    }
 }
 
 class FileTable{

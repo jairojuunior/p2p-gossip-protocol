@@ -5,10 +5,51 @@
  */
 package peer;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+import org.json.JSONObject;
+
 /**
  *
- * @author guest-tdld1a
+ * @author Lucas Ferraz Nicolau
  */
-public class Listener {
+public class Listener extends Thread {
+    private String IP;
+    private String port;
+    private MessageController messageController;
+    
+    public Listener(String ip, String port) {
+    	this.IP = ip;
+    	this.port = port;
+    	messageController = new MessageController(IP);
+    }
+    
+    /*Run method from Thread inheritance. Continuously loop receiving messages and treating them*/
+    public void run() {
+    	try {
+    		DatagramSocket socket = new DatagramSocket(Integer.parseInt(port));
+    		
+    		while (true) {
+    			// Verify buffer length
+    			byte[] buffer = new byte[1024];
+    			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+    			
+    			socket.receive(packet);
+    			
+    			String serializedData = packet.getData().toString();
+    			
+    			JSONObject message = messageController.deserializeMessage(serializedData);
+    			if (messageController.validateMessage(message)) {
+    				messageController.saveMessage(message);
+    			}
+    		}
+    		
+    		//socket.close();
+    	} catch (Exception ex) {
+    		// Exception from socket
+    		System.out.println("Something went very wrong");
+    	}
+    }
     
 }
