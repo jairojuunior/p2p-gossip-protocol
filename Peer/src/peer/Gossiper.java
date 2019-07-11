@@ -30,7 +30,7 @@ PARAMETROS DO CONSTRUTOR
 -ENDERECO DOS PEERS DA REDE
 -
 */
-public class Gossiper implements Runnable{
+public class Gossiper extends Thread{
     private final String IP;
     private final String port;
     private final String name;
@@ -61,15 +61,18 @@ public class Gossiper implements Runnable{
     public void run(){
         while(true){
             try {
-                Thread.sleep(this.refreshTime);
+                while(this.TABLE.size()==0){
+                    Thread.sleep(this.refreshTime);
+                }
             } catch (InterruptedException ex) {
                 Logger.getLogger(Gossiper.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             ArrayList destination = choosePeer();
-            FileTable tableToSend = chooseTableToSend();
+            ArrayList tableToSend = chooseTableToSend();
             JSONObject tableJSON = new JSONObject(tableToSend);
             String tableString = tableJSON.toString();
+            System.out.println(tableString);
 
             byte[] sendData = new byte[1024];
             sendData = tableString.getBytes();
@@ -94,11 +97,11 @@ public class Gossiper implements Runnable{
         return (ArrayList) this.LIST_OF_PEERS.get(selected_peer);
     }
     
-    private FileTable chooseTableToSend(){
+    private ArrayList chooseTableToSend(){
         Random rand = new Random();
         int number_of_tables = this.TABLE.size();
         int selected_table = rand.nextInt(number_of_tables);
-        return (FileTable) this.LIST_OF_PEERS.get(selected_table);
+        return (ArrayList) this.LIST_OF_PEERS.get(selected_table);
     }
     
     

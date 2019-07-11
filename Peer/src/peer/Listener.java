@@ -38,6 +38,7 @@ public class Listener extends Thread {
     			socket.receive(packet);
     			
     			String serializedData = packet.getData().toString();
+                        System.out.println(serializedData);
     			
     			JSONObject message = messageController.deserializeMessage(serializedData);
     			if (messageController.validateMessage(message)) {
