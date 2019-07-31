@@ -2,7 +2,7 @@
 Implementation of a Gossip protocol for p2p communication in Java.
 Below a simple diagram of classes.
 
-Basically each Peer 
+Basically each Peer implements a Listener and a Gossiper. The Listener receives UDP messages from other peers and passes them to the Message Controller that validates and store in a singleton class accessed through the PeerDAO. Old records saved are cleaned from time to time via a class called Garbage Collector. The peer itself reads a given file system (directory) via FileSystemReader and stores itself in the same DAO. The Gossiper chooses a random known peer from time to time to retransmit a record saved.
 ![P2P Gossip Protol UML diagram of classes](https://github.com/jairojuunior/p2p-gossip-protocol/blob/master/UML.png?raw=true)
 
 ### How to start a Peer?
